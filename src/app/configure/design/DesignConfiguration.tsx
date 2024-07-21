@@ -9,11 +9,12 @@ import { Rnd } from "react-rnd";
 import { RadioGroup } from "@headlessui/react";
 import { COLORS, MODELS } from "@/validators/option-validator";
 import { Label } from "@/components/ui/label";
-import { DropdownMenu, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import {
+  DropdownMenu,
+  DropdownMenuItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "@radix-ui/react-dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { ChevronsUpDown } from "lucide-react";
 
@@ -142,7 +143,7 @@ const DesignConfiguration: FC<IDesignConfiguration> = ({
                         className="w-full justify-between"
                       >
                         {options.model.label}
-                        <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50 " />
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
@@ -156,7 +157,15 @@ const DesignConfiguration: FC<IDesignConfiguration> = ({
                                 model.label === options.model.label,
                             }
                           )}
-                        ></DropdownMenuItem>
+                          onClick={() => {
+                            setOptions((prev) => ({
+                              ...prev,
+                              model,
+                            }));
+                          }}
+                        >
+                          {model.label}
+                        </DropdownMenuItem>
                       ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
