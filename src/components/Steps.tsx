@@ -90,7 +90,7 @@ const Steps: FC<ISteps> = () => {
                       stroke="currentcolor"
                       vectorEffect="non-scaling-stroke"
                     />
-                  </svg> 
+                  </svg>
                 </div>
               ) : null}
             </div>
