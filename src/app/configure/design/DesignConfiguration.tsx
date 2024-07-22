@@ -7,7 +7,12 @@ import NextImage from "next/image";
 import React, { act, FC, useState } from "react";
 import { Rnd } from "react-rnd";
 import { RadioGroup } from "@headlessui/react";
-import { COLORS, MODELS } from "@/validators/option-validator";
+import {
+  COLORS,
+  FINISHES,
+  MATERIALS,
+  MODELS,
+} from "@/validators/option-validator";
 import { Label } from "@/components/ui/label";
 import {
   DropdownMenu,
@@ -16,7 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown } from "lucide-react";
 
 interface IDesignConfiguration {
   configId: string;
@@ -32,9 +37,13 @@ const DesignConfiguration: FC<IDesignConfiguration> = ({
   const [options, setOptions] = useState<{
     color: (typeof COLORS)[number];
     model: (typeof MODELS.options)[number];
+    material: (typeof MATERIALS.options)[number];
+    finish: (typeof FINISHES.options)[number];
   }>({
     color: COLORS[0],
     model: MODELS.options[0],
+    material: MATERIALS.options[0],
+    finish: FINISHES.options[0],
   });
   console.log(options);
   return (
@@ -164,12 +173,60 @@ const DesignConfiguration: FC<IDesignConfiguration> = ({
                             }));
                           }}
                         >
+                          <Check
+                            className={cn(
+                              "mr-2 size-4",
+                              model.label === options.model.label
+                                ? "opacity-100"
+                                : "opacity-0"
+                            )}
+                          />
                           {model.label}
                         </DropdownMenuItem>
                       ))}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
+                {[MATERIALS, FINISHES].map(
+                  ({ name, options: selectableOptions }) => (
+                    <RadioGroup
+                      key={name}
+                      value={options[name]}
+                      onChange={(val) => {
+                        setOptions((prev) => ({
+                          ...prev,
+                          [name]: val,
+                        }));
+                      }}
+                    >
+                      <Label>
+                        {name.slice(0, 1).toUpperCase() + name.slice(1)}
+                      </Label>
+                      <div className="mt-3 space-y-4">
+                        {selectableOptions.map((option) => (
+                          <RadioGroup.Option
+                            key={option.value}
+                            value={option}
+                            className={({ active, checked }) =>
+                              cn(
+                                "relative block cursor-pointer rounded-lg bg-white px-6 py-4 shadow-sm border-2 border-zinc-200 focus:outline-none ring-0 focus:ring-0 outline-none sm:flex sm:justify-between",
+                                { "border-primary": active || checked }
+                              )
+                            }
+                          >
+                            <span className="flex items-center ">
+                              <span className="flex flex-col text-sm">
+                                <RadioGroup.Label as="span">
+                                  {option.label}
+                                </RadioGroup.Label>
+                              </span>
+                            </span>
+                          </RadioGroup.Option>
+                        ))}
+                      </div>
+                    </RadioGroup>
+                  )
+                )}
               </div>
             </div>
           </div>
