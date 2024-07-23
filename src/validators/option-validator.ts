@@ -58,7 +58,7 @@ export const MATERIALS = {
   ],
 };
 export const FINISHES = {
-  name: "material",
+  name: "finish",
   options: [
     {
       label: "Smooth Finish",
