@@ -23,6 +23,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Check, ChevronsUpDown } from "lucide-react";
 import { BASE_PRICE } from "@/config/products";
+import { useUploadThing } from "@/lib/uploadthing";
+import { useToast } from "@/components/ui/use-toast";
+import { useMutation } from "@tanstack/react-query";
+import { ISaveConfigArgs, saveConfig as _saveConfig } from "./actions";
+import { useRouter } from "next/navigation";
 
 interface IDesignConfiguration {
   configId: string;
@@ -35,6 +40,25 @@ const DesignConfiguration: FC<IDesignConfiguration> = ({
   imageUrl,
   imageDimensions,
 }) => {
+  const { toast } = useToast();
+  const router = useRouter();
+  const { mutate: saveConfig } = useMutation({
+    mutationKey: ["save-config"],
+    mutationFn: async (args: ISaveConfigArgs) => {
+      await Promise.all([saveConfiguration(), _saveConfig(args)]);
+    },
+    onError: () => {
+      toast({
+        title: "Something went wrong",
+        description: "There was an error on our end. Please try again.",
+        variant: "destructive",
+      });
+    },
+    onSuccess: () => {
+      router.push(`/configure/preview?id=${configId}`);
+    },
+  });
+
   const [options, setOptions] = useState<{
     color: (typeof COLORS)[number];
     model: (typeof MODELS.options)[number];
@@ -59,6 +83,8 @@ const DesignConfiguration: FC<IDesignConfiguration> = ({
 
   const phoneCaseRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const { startUpload } = useUploadThing("imageUploader");
 
   const base64ToBlob = (base64: string, mimeType: string) => {
     const byteCharacters = atob(base64);
@@ -106,7 +132,16 @@ const DesignConfiguration: FC<IDesignConfiguration> = ({
       const base64Data = base64.split(",")[1];
 
       const blob = base64ToBlob(base64Data, "image/png");
-    } catch (err) {}
+      const file = new File([blob], "filename.png", { type: "image/png" });
+
+      await startUpload([file], { configId });
+    } catch (err) {
+      toast({
+        title: "Something went wrong",
+        description: "There was a problem saving you config, please try again",
+        variant: "destructive",
+      });
+    }
   }
 
   return (
@@ -339,7 +374,19 @@ const DesignConfiguration: FC<IDesignConfiguration> = ({
                     100
                 )}
               </p>
-              <Button size="sm" className="w-full">
+              <Button
+                size="sm"
+                className="w-full"
+                onClick={() =>
+                  saveConfig({
+                    configId,
+                    color: options.color.value,
+                    finish: options.finish.value,
+                    material: options.material.value,
+                    model: options.model.value,
+                  })
+                }
+              >
                 Continue
                 <ArrowRight className="size-4 ml-1.5 inline" />
               </Button>
