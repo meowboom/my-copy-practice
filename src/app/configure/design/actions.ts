@@ -8,7 +8,7 @@ import {
   PhoneModel,
 } from "@prisma/client";
 
-export type ISaveConfigArgs = {
+export type SaveConfigArgs = {
   color: CaseColor;
   finish: CaseFinish;
   material: CaseMaterial;
@@ -22,14 +22,22 @@ export async function saveConfig({
   material,
   model,
   configId,
-}: ISaveConfigArgs) {
-  await db.configuration.update({
-    where: { id: configId },
-    data: {
-      color,
-      finish,
-      material,
-      model,
-    },
-  });
+}: SaveConfigArgs) {
+  console.log("SaveConfig args:", { color, finish, material, model, configId });
+
+  try {
+    await db.configuration.update({
+      where: { id: configId },
+      data: {
+        color,
+        finish,
+        material,
+        model,
+      },
+    });
+    console.log("Configuration saved successfully.");
+  } catch (error) {
+    console.error("Error saving configuration:", error);
+    throw error;
+  }
 }

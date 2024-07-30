@@ -56,7 +56,7 @@ export const MATERIALS = {
       price: PRODUCT_PRICES.material.polycarbonate,
     },
   ],
-};
+} as const;
 export const FINISHES = {
   name: "finish",
   options: [
@@ -73,4 +73,4 @@ export const FINISHES = {
       price: PRODUCT_PRICES.finish.textured,
     },
   ],
-};
+} as const;

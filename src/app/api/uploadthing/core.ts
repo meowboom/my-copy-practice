@@ -3,7 +3,7 @@ import { z } from "zod";
 import sharp from "sharp";
 import { db } from "@/db";
 
-const f = createUploadthing();
+const f = createUploadthing()
 
 export const ourFileRouter = {
   imageUploader: f({ image: { maxFileSize: "4MB" } })

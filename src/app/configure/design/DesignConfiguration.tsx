@@ -26,7 +26,7 @@ import { BASE_PRICE } from "@/config/products";
 import { useUploadThing } from "@/lib/uploadthing";
 import { useToast } from "@/components/ui/use-toast";
 import { useMutation } from "@tanstack/react-query";
-import { ISaveConfigArgs, saveConfig as _saveConfig } from "./actions";
+import { SaveConfigArgs, saveConfig as _saveConfig } from "./actions";
 import { useRouter } from "next/navigation";
 
 interface IDesignConfiguration {
@@ -42,9 +42,9 @@ const DesignConfiguration: FC<IDesignConfiguration> = ({
 }) => {
   const { toast } = useToast();
   const router = useRouter();
-  const { mutate: saveConfig } = useMutation({
+  const { mutate: saveConfig, isPending } = useMutation({
     mutationKey: ["save-config"],
-    mutationFn: async (args: ISaveConfigArgs) => {
+    mutationFn: async (args: SaveConfigArgs) => {
       await Promise.all([saveConfiguration(), _saveConfig(args)]);
     },
     onError: () => {
@@ -76,7 +76,7 @@ const DesignConfiguration: FC<IDesignConfiguration> = ({
     height: imageDimensions.height / 4,
   });
 
-  const [renderPosition, setRenderPosition] = useState({
+  const [renderedPosition, setRenderedPosition] = useState({
     x: 150,
     y: 205,
   });
@@ -95,24 +95,28 @@ const DesignConfiguration: FC<IDesignConfiguration> = ({
     const byteArray = new Uint8Array(byteNumbers);
     return new Blob([byteArray], { type: mimeType });
   };
+
   async function saveConfiguration() {
     try {
       const {
         left: caseLeft,
         top: caseTop,
-        width: caseWidth,
-        height: caseHeight,
+        width,
+        height,
       } = phoneCaseRef.current!.getBoundingClientRect();
+
       const { left: containerLeft, top: containerTop } =
         containerRef.current!.getBoundingClientRect();
+
       const leftOffset = caseLeft - containerLeft;
       const topOffset = caseTop - containerTop;
-      const actualX = renderPosition.x - leftOffset;
-      const actualY = renderPosition.y - topOffset;
+
+      const actualX = renderedPosition.x - leftOffset;
+      const actualY = renderedPosition.y - topOffset;
 
       const canvas = document.createElement("canvas");
-      canvas.width = caseWidth;
-      canvas.height = caseHeight;
+      canvas.width = width;
+      canvas.height = height;
       const ctx = canvas.getContext("2d");
 
       const userImage = new Image();
@@ -138,7 +142,8 @@ const DesignConfiguration: FC<IDesignConfiguration> = ({
     } catch (err) {
       toast({
         title: "Something went wrong",
-        description: "There was a problem saving you config, please try again",
+        description:
+          "There was a problem saving your config, please try again.",
         variant: "destructive",
       });
     }
@@ -183,11 +188,11 @@ const DesignConfiguration: FC<IDesignConfiguration> = ({
               height: parseInt(ref.style.height.slice(0, -2)),
               width: parseInt(ref.style.width.slice(0, -2)),
             });
-            setRenderPosition({ x, y });
+            setRenderedPosition({ x, y });
           }}
           onDragStop={(_, data) => {
             const { x, y } = data;
-            setRenderPosition({ x, y });
+            setRenderedPosition({ x, y });
           }}
           className="absolute z-20 border-[3px] border-primary"
           lockAspectRatio
@@ -378,6 +383,7 @@ const DesignConfiguration: FC<IDesignConfiguration> = ({
                 size="sm"
                 className="w-full"
                 onClick={() =>
+                  // saveConfiguration()
                   saveConfig({
                     configId,
                     color: options.color.value,
