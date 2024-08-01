@@ -26,7 +26,11 @@ const Phone: FC<IPhone> = ({ imgSrc, className, dark = false, ...props }) => {
         alt="phone img"
       />
       <div className="absolute -z-10 inset-0">
-        <img className="object-cover" src={imgSrc} alt="overlaying phone img" />
+        <img
+          className="object-cover min-w-full max-h-full"
+          src={imgSrc}
+          alt="overlaying phone img"
+        />
       </div>
     </div>
   );

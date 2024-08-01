@@ -383,7 +383,6 @@ const DesignConfiguration: FC<IDesignConfiguration> = ({
                 size="sm"
                 className="w-full"
                 onClick={() =>
-                  // saveConfiguration()
                   saveConfig({
                     configId,
                     color: options.color.value,
