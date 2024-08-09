@@ -1,18 +1,25 @@
 "use client";
 import Phone from "@/components/Phone";
+import { Button } from "@/components/ui/button";
 import { BASE_PRICE, PRODUCT_PRICES } from "@/config/products";
 import { cn, formatPrice } from "@/lib/utils";
 import { COLORS, MODELS } from "@/validators/option-validator";
 import { Configuration } from "@prisma/client";
-import { Check } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { ArrowRightIcon, Check } from "lucide-react";
 import React, { FC, useEffect, useState } from "react";
 import Confetti from "react-dom-confetti";
+import { createCheckoutSession } from "./actions";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/use-toast";
 
 interface IDesignPreview {
   configuration: Configuration;
 }
 
 const DesignPreview: FC<IDesignPreview> = ({ configuration }) => {
+  const router = useRouter();
+  const { toast } = useToast();
   const [showConfetti, setShowConfetti] = useState(false);
   useEffect(() => setShowConfetti(true), []);
   const { color, croppedImageUrl, model, finish, material } = configuration;
@@ -22,6 +29,27 @@ const DesignPreview: FC<IDesignPreview> = ({ configuration }) => {
   const tw = COLORS.find(
     (supportedColor) => supportedColor.value === color
   )?.tw;
+
+  let totalPrice = BASE_PRICE;
+  if (material === "polycarbonate")
+    totalPrice += PRODUCT_PRICES.material.polycarbonate;
+  if (finish === "textured") totalPrice += PRODUCT_PRICES.finish.textured;
+  const { mutate: createPaymentSession } = useMutation({
+    mutationKey: ["get-checkout-session"],
+    mutationFn: createCheckoutSession,
+    onSuccess: ({ url }) => {
+      if (url) router.push(url);
+      else throw new Error("Unable to retrieve payment URL.");
+    },
+    onError: () => {
+      toast({
+        title: "Something went wrong",
+        description: "There was an error on our end. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   return (
     <>
       <div
@@ -66,7 +94,7 @@ const DesignPreview: FC<IDesignPreview> = ({ configuration }) => {
             </div>
           </div>
           <div className="mt-8">
-            <div className="bg-gray-500 p-6 sm:rounded-lg sm:p-8">
+            <div className="bg-gray-50 p-6 sm:rounded-lg sm:p-8">
               <div className="flow-root text-sm">
                 <div className="flex items-center justify-between py-1 mt-2">
                   <p className="text-gray-600">Base price</p>
@@ -100,7 +128,24 @@ const DesignPreview: FC<IDesignPreview> = ({ configuration }) => {
                     </div>
                   </div>
                 ) : null}
+                <div className="my-2 h-px bg-gray-200" />
+                <div className="flex items-center justify-between py-2">
+                  <p className="font-semibold text-gray-900">Order total</p>
+                  <p className="font-semibold text-gray-900">
+                    {formatPrice(totalPrice / 100)}
+                  </p>
+                </div>
               </div>
+            </div>
+            <div className="mt-8 flex justify-end pb-12">
+              <Button
+                onClick={() =>
+                  createPaymentSession({ configId: configuration.id })
+                }
+                className="px-4 sm:px-6 lg:px-8"
+              >
+                Check out <ArrowRightIcon className="size-4 ml-1.5 inline" />
+              </Button>
             </div>
           </div>
         </div>
