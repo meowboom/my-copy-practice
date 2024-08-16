@@ -7,6 +7,8 @@ import {
   DialogTitle,
 } from "./ui/dialog";
 import React, { Dispatch, FC } from "react";
+import { LoginLink, RegisterLink } from "@kinde-oss/kinde-auth-nextjs";
+import { buttonVariants } from "./ui/button";
 
 interface ILoginModal {
   isOpen: boolean;
@@ -36,7 +38,14 @@ const LoginModal: FC<ILoginModal> = ({ isOpen, setIsOpen }) => {
             Please login or create account to complete your purchase.
           </DialogDescription>
         </DialogHeader>
-        <div className="grid grid-cols-2 gap-6 divide-x divide-gray-200"></div>
+        <div className="grid grid-cols-2 gap-6 divide-x divide-gray-200">
+          <LoginLink className={buttonVariants({ variant: "outline" })}>
+            Login
+          </LoginLink>
+          <RegisterLink className={buttonVariants({ variant: "default" })}>
+            Sign Up
+          </RegisterLink>
+        </div>
       </DialogContent>
     </Dialog>
   );
