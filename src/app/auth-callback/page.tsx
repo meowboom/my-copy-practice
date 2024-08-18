@@ -23,7 +23,7 @@ const page: FC<IAuth> = () => {
   if (data?.success) {
     if (configId) {
       localStorage.removeItem("configurationId");
-      router.push(`/configure/preview?id${configId}`);
+      router.push(`/configure/preview?id=${configId}`);
     } else {
       router.push("/");
     }

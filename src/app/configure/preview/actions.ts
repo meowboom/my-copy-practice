@@ -42,13 +42,6 @@ export const createCheckoutSession = async ({
     },
   });
 
-  console.log(user.id, configuration.id, existingOrder);
-
-  const findUser = await db.user.findUnique({
-    where: { id: "clzmsp1400000xon6gunxqbb7" },
-  });
-  console.log(findUser);
-
   if (existingOrder) {
     order = existingOrder;
   } else {
@@ -82,8 +75,6 @@ export const createCheckoutSession = async ({
     },
     line_items: [{ price: product.default_price as string, quantity: 1 }],
   });
-
-  console.log(stripeSession.url);
 
   return { url: stripeSession.url };
 };
